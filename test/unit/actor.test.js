@@ -10,4 +10,11 @@ describe( 'Actor model', () => {
         });
         assert.equal(actor.validateSync(), undefined);
     });
+
+    it('checks required fields', () => {
+        const actor = new Actor({ });
+        const { errors } = actor.validateSync();
+        assert.equal(errors.name.kind, 'required');
+    });
+
 });
