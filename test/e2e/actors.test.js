@@ -13,11 +13,24 @@ describe('Actors API', () => {
         pob: 'Lexington KY'
     };
 
-    it.only('saves an actor', () => {
+    it('saves an actor', () => {
         return request.post('/api/filmIndustry/actors')
             .send(actor)
             .then(({ body }) => {
                 assert.equal(body.name, actor.name);
+            });
+    });
+
+    it('get actor with an id', () => {
+        let savedActor =null;
+        return request.post('/api/filmIndustry/actors')
+            .send(actor)
+            .then(res => {
+                savedActor = res.body;
+                return request.get(`/api/filmIndustry/actors/${savedActor._id}`);
+            })
+            .then(res => {
+                assert.deepEqual(res.body, savedActor);
             });
     });
 
