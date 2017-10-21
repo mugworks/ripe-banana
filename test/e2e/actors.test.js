@@ -21,12 +21,13 @@ describe('Actors API', () => {
             });
     });
 
-    it('get actor with an id', () => {
+    it.only('get actor with an id', () => {
         let savedActor =null;
         return request.post('/api/filmIndustry/actors')
             .send(actor)
             .then(res => {
                 savedActor = res.body;
+                // console.log('actor id', res.body._id);
                 return request.get(`/api/filmIndustry/actors/${savedActor._id}`);
             })
             .then(res => {
