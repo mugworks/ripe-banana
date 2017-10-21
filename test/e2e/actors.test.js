@@ -27,6 +27,7 @@ describe('Actors API', () => {
             .send(actor)
             .then(res => {
                 savedActor = res.body;
+                // console.log('actor id', res.body._id);
                 return request.get(`/api/filmIndustry/actors/${savedActor._id}`);
             })
             .then(res => {
