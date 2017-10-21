@@ -1,10 +1,10 @@
-const request = require('request');
-const mongoose = require('mongoose');
-const assert = require('chai').assert;
+// const request = require('request');
+// const mongoose = require('mongoose');
+// const assert = require('chai').assert;
 
-describe('filmIndustry API', () => {
+// describe('filmIndustry API', () => {
 
-    beforeEach(() => mongoose.connection.dropDatabase());
+//     beforeEach(() => mongoose.connection.dropDatabase());
 
-    it('gets a film', )
-})
+//     it('gets a film', )
+// })
