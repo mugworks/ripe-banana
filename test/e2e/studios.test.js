@@ -54,4 +54,25 @@ describe('Studios API', () => {
                 assert.equal(res.body.name, update.name);
             });
     });
+
+    it('removes by id', () => {
+        let studio = null;
+        return request.post('/api/studios')
+            .send(studio)
+            .then(res => {
+                studio = res.body;
+                return request.delete(`/api/studios/${studio._id}`);
+            })
+            .then(res => {
+                assert.deepEqual(res.body, { removed: true });
+                return request.get(`/api/studio/${studio._id}`);
+            })
+            .then(
+                () => { throw new Error('Unexpected successful response'); },
+                err => {
+                    assert.equal(err.status, 404);
+                }
+            );
+    });
+
 });
