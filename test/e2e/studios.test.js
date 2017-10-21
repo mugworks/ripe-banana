@@ -35,4 +35,23 @@ describe('Studios API', () => {
                 assert.deepEqual(res.body, savedStudio);
             });
     });
+
+    it('gets by id and returns a 404 with a bad id', () => {
+        const update = {
+            name: 'Paramount Pictures',
+            address: {
+                city: 'Hollywood',
+                state: 'California',
+                country: 'USA'
+            }
+        };
+        return request.post('/api/filmIndustry/studios')
+            .send(studio)
+            .then(res => {
+                return request.put(`/api/filmIndustry/studios/${res.body._id}`).send(update);
+            })
+            .then(res => {
+                assert.equal(res.body.name, update.name);
+            });
+    });
 });
