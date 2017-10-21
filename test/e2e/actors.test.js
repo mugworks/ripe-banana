@@ -21,7 +21,7 @@ describe('Actors API', () => {
             });
     });
 
-    it.only('get actor with an id', () => {
+    it('get actor with an id', () => {
         let savedActor =null;
         return request.post('/api/filmIndustry/actors')
             .send(actor)
