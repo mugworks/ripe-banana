@@ -22,4 +22,17 @@ describe('Studios API', () => {
                 assert.equal(body.name, studio.name);
             });
     });
+
+    it('gets a studio with an id', () => {
+        let savedStudio = null;
+        return request.post('/api/filmIndustry/studios')
+            .send(studio)
+            .then(res => {
+                savedStudio = res.body;
+                return request.get(`/api/filmIndustry/studios/${savedStudio._id}`);
+            })
+            .then(res => {
+                assert.deepEqual(res.body, savedStudio);
+            });
+    });
 });
