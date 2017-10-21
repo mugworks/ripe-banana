@@ -18,7 +18,7 @@ describe('Film Model', () => {
         assert.equal(errors.title.kind, 'required');
         assert.equal(errors.studio.kind, 'required');
         assert.equal(errors.released.kind, 'required');
-        // assert.equal(errors['cast.0.actor'].kind, 'required');
+        // assert.equal(errors['cast[0].actor'].kind, 'required');
     });
 
 
