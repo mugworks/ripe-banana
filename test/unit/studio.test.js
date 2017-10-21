@@ -14,7 +14,7 @@ describe('Studio model', () => {
         assert.equal(studio.validateSync(), undefined);
     });
 
-    it.only('checks required fields', () => {
+    it('checks required fields', () => {
         const studio = new Studio({ });
         const { errors } = studio.validateSync();
         assert.equal(errors.name.kind, 'required');
