@@ -44,7 +44,7 @@ describe('Film API', () => {
     });
 
 
-    it.only('gets all films', () => {
+    it('gets all films', () => {
         
 
         const filmArray = [movie1, movie2].map(movie => {
@@ -57,7 +57,6 @@ describe('Film API', () => {
         return Promise.all(filmArray)
             .then(_saved => {
                 saved = _saved;
-                console.log('saved', saved);
                 return request.get('/api/filmIndustry/films');
             })
 
@@ -65,5 +64,19 @@ describe('Film API', () => {
                 assert.deepEqual(res.body, saved);
             });
 
+    }),
+
+    it('get a film by id', () => {
+        let film = null;
+        return request.post('/api/filmIndustry/films')
+            .send(movie1)
+            .then(res => {
+                film = res.body;
+                return request.get(`/api/filmIndustry/films/${film._id}`);
+            })
+            .then(res => {
+                assert.deepEqual(res.body, film);
+            });
     });
 });
+
