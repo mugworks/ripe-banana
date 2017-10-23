@@ -8,11 +8,12 @@ describe('Review model', () => {
             rating: 3,
             reviewer: '59eb8057ea2b371badf14536',
             review_text: 'Great movie!!', 
+            film: '59eb8057ea2b371badf14534'
         });
         assert.equal(review.validateSync(), undefined);
     });
 
-    it.only('checks required fields', () => {
+    it('checks required fields', () => {
         const review= new Review ({ });
         const { errors } = review.validateSync();
         assert.equal(errors.rating.kind, 'required');
