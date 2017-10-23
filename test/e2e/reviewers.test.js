@@ -39,6 +39,28 @@ describe('Reviewer API', () => {
                 });
     });
 
+    it('get all reviewers',() => {
+        const reviewer2 = {
+            name:'Gene Siskel',
+            company:'Siskel & Ebert'};
+
+        let reviewerCollection = [reviewer, reviewer2].map(item => {
+            return request.post('/api/filmIndustry/reviewers')
+                .send(item)
+                .then(res => res.body);
+        });
+
+        let saved = null;
+        return Promise.all(reviewerCollection)
+            .then(_saved => {
+                saved =_saved;
+                return request.get('/api/filmIndustry/reviewers');
+            })
+            .then(res => {
+                assert.deepEqual(res.body, saved);
+            });
+    });
+
     it('updates reviewer with an id', () => {
         const update = { 
             name:'Gene Siskel',

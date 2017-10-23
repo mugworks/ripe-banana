@@ -44,6 +44,30 @@ describe('Actors API', () => {
                 });
     });
 
+    it('get all actors',() => {
+        const actor2 = {
+            name: 'Tom Hanks',
+            dob: 1956,
+            pob: 'Concord CA'
+        };
+
+        let actorCollection = [actor, actor2].map(item => {
+            return request.post('/api/filmIndustry/actors')
+                .send(item)
+                .then(res => res.body);
+        });
+
+        let saved = null;
+        return Promise.all(actorCollection)
+            .then(_saved => {
+                saved =_saved;
+                return request.get('/api/filmIndustry/actors');
+            })
+            .then(res => {
+                assert.deepEqual(res.body, saved);
+            });
+    });
+
     it('updates actor with an id', () => {
         const update = { 
             name:'Charlie Chaplin',
