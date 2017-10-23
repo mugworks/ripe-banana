@@ -62,13 +62,17 @@ describe('Actors API', () => {
     it.only('removes an actor by id if no film exists', () => {
         return request.post('/api/filmIndustry/actors')
             .send(actor)
-            .then(res => res.body._id);
-        // if (!req.query.film) {
-        //     (next);
-        // } else {
-        //     return request.delete(`/api/filmIndustry/actors/${res.body._id}`);
-        // }
+            .then(res => {
+                return request.delete(`/api/filmIndustry/actors${res.body._id}`);
+            })
+            .then(res => {
+                assert.deepEqual(res.body, {removed: true});
+                // return request.get(`/api/filmIndustry/actors${res.body._id}`);
+            // })
+            // .then(
+            //     () => { throw new Error('Unexpected successful response'); },
+            //     err => {
+            //         assert.equal(err.status, 404);
+            });
     });
-
-
 });
