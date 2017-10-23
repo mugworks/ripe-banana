@@ -4,7 +4,7 @@ const assert = require('chai').assert;
 
 
 describe('Actors API', () => {
-    
+
     beforeEach(() => mongoose.connection.dropDatabase());
 
     const actor = {
@@ -22,12 +22,11 @@ describe('Actors API', () => {
     });
 
     it('get actor with an id', () => {
-        let savedActor =null;
+        let savedActor = null;
         return request.post('/api/filmIndustry/actors')
             .send(actor)
             .then(res => {
                 savedActor = res.body;
-                // console.log('actor id', res.body._id);
                 return request.get(`/api/filmIndustry/actors/${savedActor._id}`);
             })
             .then(res => {
@@ -38,15 +37,15 @@ describe('Actors API', () => {
     it('get by id return 404 with bad id', () => {
         return request.get('/api/filmIndustry/actors/59eb8057ea2b371badf14536')
             .then(
-                () => {throw new Error('Unexpected error');},
+                () => { throw new Error('Unexpected error'); },
                 err => {
                     assert.equal(err.status, 404);
                 });
     });
 
     it('updates actor with an id', () => {
-        const update = { 
-            name:'Charlie Chaplin',
+        const update = {
+            name: 'Charlie Chaplin',
             dob: 1961,
             pob: 'Lexington KY'
         };
@@ -58,7 +57,18 @@ describe('Actors API', () => {
             .then(res => {
                 assert.equal(res.body.name, update.name);
             });
-
     });
+
+    it.only('removes an actor by id if no film exists', () => {
+        return request.post('/api/filmIndustry/actors')
+            .send(actor)
+            .then(res => res.body._id);
+        // if (!req.query.film) {
+        //     (next);
+        // } else {
+        //     return request.delete(`/api/filmIndustry/actors/${res.body._id}`);
+        // }
+    });
+
 
 });
