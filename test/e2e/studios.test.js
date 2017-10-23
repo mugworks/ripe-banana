@@ -71,8 +71,7 @@ describe('Studios API', () => {
                 () => { throw new Error('Unexpected successful response'); },
                 err => {
                     assert.equal(err.status, 404);
-                }
-            );
+                });
     });
 
 });
