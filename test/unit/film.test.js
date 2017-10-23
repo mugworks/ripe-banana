@@ -13,12 +13,12 @@ describe('Film Model', () => {
     }),
 
     it('checks required fields', () => {
-        const film = new Film({});
+        const film = new Film({cast: [{}]});
         const {errors} = film.validateSync();
         assert.equal(errors.title.kind, 'required');
         assert.equal(errors.studio.kind, 'required');
         assert.equal(errors.released.kind, 'required');
-        // assert.equal(errors['cast[0].actor'].kind, 'required');
+        assert.equal(errors['cast.0.actor'].kind, 'required');
     });
 
 
