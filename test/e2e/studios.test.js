@@ -4,6 +4,8 @@ const assert = require('chai').assert;
 
 describe('Studios API', () => {
 
+    
+    
     beforeEach(() => mongoose.connection.dropDatabase());
 
     const studio = {
@@ -15,6 +17,12 @@ describe('Studios API', () => {
         }
     };
 
+    // let movie1 = {
+    //     title: 'Wonder Woman',
+    //     studio: studio._id,
+    //     released: 2017
+    // };
+
     it('saves a studio', () => {
         return request.post('/api/filmIndustry/studios')
             .send(studio)
@@ -23,7 +31,7 @@ describe('Studios API', () => {
             });
     });
 
-    it('gets a studio with an id', () => {
+    it.only('gets a studio with an id', () => {
         let savedStudio = null;
         return request.post('/api/filmIndustry/studios')
             .send(studio)
@@ -32,7 +40,9 @@ describe('Studios API', () => {
                 return request.get(`/api/filmIndustry/studios/${savedStudio._id}`);
             })
             .then(res => {
-                assert.deepEqual(res.body, savedStudio);
+                assert.deepEqual(res.body.name, savedStudio.name);
+                assert.deepEqual(res.body.address, savedStudio.address);
+                // assert.ok(res.body.film.title);
             });
     });
 
