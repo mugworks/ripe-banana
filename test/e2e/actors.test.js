@@ -21,7 +21,7 @@ describe('Actors API', () => {
             });
     });
 
-    it('get actor with an id', () => {
+    it.only('get actor with an id', () => {
         let savedActor = null;
         return request.post('/api/filmIndustry/actors')
             .send(actor)
@@ -64,6 +64,8 @@ describe('Actors API', () => {
             })
             .then(res => {
                 assert.deepEqual(res.body, saved);
+                console.log(res.body);
+                assert.equal(res.body[1].name, 'Tom Hanks');
             });
     });
 
