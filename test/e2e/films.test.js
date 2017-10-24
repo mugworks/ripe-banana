@@ -7,31 +7,46 @@ describe('Film API', () => {
     let studio = {
         name: 'MGM'
     };
+
+    let actor = {
+        name: 'Ryan Gosling'
+    };
     
     let movie1 = null;
     let movie2 = null;
 
     beforeEach(() => {
-        
+
         mongoose.connection.dropDatabase();
 
         return request.post('/api/filmIndustry/studios')
             .send(studio)
             .then(res => res.body)
-            .then(saved => {
-                studio = saved;
+            .then(savedStudio => {
+                studio = savedStudio;
 
-                movie1 = {
-                    title: 'Wonder Woman',
-                    studio: studio._id,
-                    released: 2017
-                };
+            })
+            .then(() => {
+                return request.post('/api/filmIndustry/actors')
+                    .send(actor)
+                    .then(res => res.body)
+                    .then(savedActor => {
+                        actor = savedActor;
 
-                movie2 = {
-                    title: 'Shawshank Redemption',
-                    studio: studio._id,
-                    released: 1995
-                };
+                        movie1 = {
+                            title: 'Wonder Woman',
+                            studio: studio._id,
+                            released: 2017,
+                            cast: {actor: actor._id}
+                        };
+
+                        movie2 = {
+                            title: 'Shawshank Redemption',
+                            studio: studio._id,
+                            released: 1995,
+                            cast: {actor: actor._id}
+                        };
+                    });
             });
     });
 
@@ -45,7 +60,7 @@ describe('Film API', () => {
 
 
     it('gets all films', () => {
-        
+
 
         const filmArray = [movie1, movie2].map(movie => {
             return request.post('/api/filmIndustry/films')
