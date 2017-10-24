@@ -31,7 +31,7 @@ describe('Studios API', () => {
             });
     });
 
-    it.only('gets a studio with an id', () => {
+    it('gets a studio with an id', () => {
         let savedStudio = null;
         return request.post('/api/filmIndustry/studios')
             .send(studio)

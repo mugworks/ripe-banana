@@ -43,7 +43,7 @@ describe('Actors API', () => {
                 });
     });
 
-    it('get all actors',() => {
+    it.only('get all actors',() => {
         const actor2 = {
             name: 'Tom Hanks',
             dob: 1956,
