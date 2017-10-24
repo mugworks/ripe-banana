@@ -7,31 +7,47 @@ describe('Film API', () => {
     let studio = {
         name: 'MGM'
     };
+
+    let actor = {
+        name: 'Ryan Gosling'
+    };
     
     let movie1 = null;
     let movie2 = null;
 
     beforeEach(() => {
-        
+
         mongoose.connection.dropDatabase();
 
         return request.post('/api/filmIndustry/studios')
             .send(studio)
             .then(res => res.body)
-            .then(saved => {
-                studio = saved;
+            .then(savedStudio => {
+                studio = savedStudio;
 
-                movie1 = {
-                    title: 'Wonder Woman',
-                    studio: studio._id,
-                    released: 2017
-                };
+            })
+            .then(() => {
+                return request.post('/api/filmIndustry/actors')
+                    .send(actor)
+                    .then(res => res.body)
+                    .then(savedActor => {
+                        actor = savedActor;
 
-                movie2 = {
-                    title: 'Shawshank Redemption',
-                    studio: studio._id,
-                    released: 1995
-                };
+                        movie1 = {
+                            title: 'Wonder Woman',
+                            studio: studio._id,
+                            released: 2017,
+                            cast: {actor: actor._id}
+                        };
+                        
+
+                        movie2 = {
+                            title: 'Shawshank Redemption',
+                            studio: studio._id,
+                            released: 1995,
+                            cast: [{actor: actor._id}]
+                        };
+                    });
             });
     });
 
@@ -44,8 +60,8 @@ describe('Film API', () => {
     });
 
 
-    it('gets all films', () => {
-        
+    it.only('gets all films', () => {
+
 
         const filmArray = [movie1, movie2].map(movie => {
             return request.post('/api/filmIndustry/films')
@@ -59,9 +75,10 @@ describe('Film API', () => {
                 saved = _saved;
                 return request.get('/api/filmIndustry/films');
             })
-
             .then(res => {
-                assert.deepEqual(res.body, saved);
+                assert.equal(res.body.title, saved.title);
+                assert.equal(res.body.released, saved.released);
+                assert.equal(res.body[0].studio.name, 'MGM');  
             });
 
     }),
@@ -75,7 +92,11 @@ describe('Film API', () => {
                 return request.get(`/api/filmIndustry/films/${film._id}`);
             })
             .then(res => {
-                assert.deepEqual(res.body, film);
+                assert.equal(res.body.title, film.title);
+                assert.equal(res.body.released, film.released);
+                assert.equal(res.body.studio._id, film.studio);
+                assert.equal(res.body.cast.part, film.cast.part);
+                assert.ok(res.body.cast[0].actor.name);
             });
     });
 });
