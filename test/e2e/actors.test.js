@@ -9,7 +9,7 @@ describe('Actors API', () => {
 
     const actor = {
         name: 'George Clooney',
-        dob: 1961,
+        dob: new Date('1961-05-06'),
         pob: 'Lexington KY'
     };
 
@@ -46,7 +46,7 @@ describe('Actors API', () => {
     it.only('get all actors',() => {
         const actor2 = {
             name: 'Tom Hanks',
-            dob: 1956,
+            dob: new Date('1956-07-09'),
             pob: 'Concord CA'
         };
 
@@ -64,7 +64,8 @@ describe('Actors API', () => {
             })
             .then(res => {
                 assert.deepEqual(res.body, saved);
-                console.log(res.body);
+                assert.equal(res.body[1].pob, 'Concord CA');
+                assert.equal(res.body[1].dob.slice(0, 4), 1956);
                 assert.equal(res.body[1].name, 'Tom Hanks');
             });
     });
