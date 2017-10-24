@@ -77,7 +77,8 @@ describe('Film API', () => {
             })
             .then(res => {
                 assert.equal(res.body.title, saved.title);
-                assert.equal(res.body.released, saved.released);  
+                assert.equal(res.body.released, saved.released);
+                assert.equal(res.body[0].studio.name, 'MGM');  
             });
 
     }),
