@@ -60,7 +60,7 @@ describe('Film API', () => {
     });
 
 
-    it('gets all films', () => {
+    it.only('gets all films', () => {
 
 
         const filmArray = [movie1, movie2].map(movie => {
@@ -76,12 +76,13 @@ describe('Film API', () => {
                 return request.get('/api/filmIndustry/films');
             })
             .then(res => {
-                assert.deepEqual(res.body, saved);
+                assert.equal(res.body.title, saved.title);
+                assert.equal(res.body.released, saved.released);  
             });
 
     }),
 
-    it.only('get a film by id', () => {
+    it('get a film by id', () => {
         let film = null;
         return request.post('/api/filmIndustry/films')
             .send(movie1)
@@ -90,7 +91,11 @@ describe('Film API', () => {
                 return request.get(`/api/filmIndustry/films/${film._id}`);
             })
             .then(res => {
+                assert.equal(res.body.title, film.title);
+                assert.equal(res.body.released, film.released);
                 assert.equal(res.body.studio._id, film.studio);
+                assert.equal(res.body.cast.part, film.cast.part);
+                assert.ok(res.body.cast[0].actor.name);
             });
     });
 });
