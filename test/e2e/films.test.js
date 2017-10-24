@@ -35,11 +35,10 @@ describe('Film API', () => {
             });
     });
 
-    it.only('saves a film', () => {
+    it('saves a film', () => {
         return request.post('/api/filmIndustry/films')
             .send(movie1)
             .then(({ body }) => {
-                console.log('body', body);
                 assert.equal(body.title, movie1.title);
             });
     });
