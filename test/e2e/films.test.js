@@ -78,7 +78,7 @@ describe('Film API', () => {
             .then(res => {
                 assert.equal(res.body.title, saved.title);
                 assert.equal(res.body.released, saved.released);
-                assert.equal(res.body[0].studio.name, 'MGM');  
+                assert.equal(res.body[0].studio.name, 'MGM'); 
             });
 
     }),
@@ -97,6 +97,38 @@ describe('Film API', () => {
                 assert.equal(res.body.studio._id, film.studio);
                 assert.equal(res.body.cast.part, film.cast.part);
                 assert.ok(res.body.cast[0].actor.name);
+            });
+    }),
+
+    it('deletes with id', () => {
+        let savedFilm =null;
+        return request.post('/api/filmIndustry/films')
+            .send(movie1)
+            .then(res => {
+                savedFilm = res.body;
+                return request.delete(`/api/filmIndustry/films/${savedFilm._id}`);
+            })
+            .then(res => {
+                assert.deepEqual(res.body, { removed: true });
+            });
+    });
+
+    it('return false delete with bad id', () => {
+        return request.delete('/api/filmIndustry/films/59dfeaeb083bf9beecc97ce8')
+            .then(res => {
+                assert.deepEqual(res.body, {removed: false});
+            });
+    });
+
+    it('changes saved movie with id', () => {
+        let update = { title: 'Rambo'};
+        return request.post('/api/filmIndustry/films')
+            .send(movie1)
+            .then(res => {
+                return request.put(`/api/filmIndustry/films/${res.body._id}`).send(update);
+            })
+            .then(res => {
+                assert.equal(res.body.title, update.title);
             });
     });
 
