@@ -131,5 +131,40 @@ describe('Film API', () => {
                 assert.equal(res.body.title, update.title);
             });
     });
+
+    it('updates a film', () => {
+        return request.post('/api/filmIndustry/films')
+            .send(movie1)
+            .then(res => {
+                let savedMovie = res.body;    
+                savedMovie.title = 'Wonder Bread';
+                return request.put(`/api/filmIndustry/films/${savedMovie._id}`)
+                    .send(savedMovie);
+            })
+            .then(res => {
+                assert.equal(res.body.title, 'Wonder Bread');
+            });
+    }); 
+    
+    it('removes by id', () => {
+        let film = null;
+        return request.post('/api/films')
+            .send(film)
+            .then(res => {
+                film = res.body;
+                return request.delete(`/api/films/${film._id}`);
+            })
+            .then(res => {
+                assert.deepEqual(res.body, { removed: true });
+                return request.get(`/api/film/${film._id}`);
+            })
+            .then(
+                () => { throw new Error('Unexpected successful response'); },
+                err => {
+                    assert.equal(err.status, 404);
+                });
+    });
+
 });
+
 
