@@ -21,16 +21,38 @@ describe('Actors API', () => {
             });
     });
 
-    it.only('get actor with an id', () => {
+    it.only('get actor by id and return pob, dob, and film title and release date using id', () => {
+
         let savedActor = null;
+
         return request.post('/api/filmIndustry/actors')
             .send(actor)
             .then(res => {
                 savedActor = res.body;
-                return request.get(`/api/filmIndustry/actors/${savedActor._id}`);
+                return request.get(`/api/filmIndustry/actors/${savedActor._id}`)
+                    .then(() => {
+                        let studioId = '59eda47c92868f6ce7de8b24';
+                        let film = {
+                            title: 'Thelma and Louise',
+                            studio: studioId,
+                            released: new Date ('1991'),
+                            cast: [{
+                                part: 'Louise',
+                                actor: savedActor._id
+                            }]
+                        };
+                        return request.post('/api/filmIndustry/films')
+                            .send(film)
+                            .then(() => {
+                                return request.get(`/api/filmIndustry/actors/${savedActor._id}`);
+                            });
+                    });
             })
             .then(res => {
-                assert.deepEqual(res.body, savedActor);
+                assert.deepEqual(res.body.name, savedActor.name);
+                assert.deepEqual(res.body.pob, savedActor.pob);
+                console.log(res.body, 'FINDTitle');
+                assert.ok(res.body.films);
             });
     });
 
@@ -43,7 +65,7 @@ describe('Actors API', () => {
                 });
     });
 
-    it.only('get all actors',() => {
+    it('get all actors', () => {
         const actor2 = {
             name: 'Tom Hanks',
             dob: new Date('1956-07-09'),
@@ -59,7 +81,7 @@ describe('Actors API', () => {
         let saved = null;
         return Promise.all(actorCollection)
             .then(_saved => {
-                saved =_saved;
+                saved = _saved;
                 return request.get('/api/filmIndustry/actors');
             })
             .then(res => {
@@ -93,7 +115,8 @@ describe('Actors API', () => {
                 return request.delete(`/api/filmIndustry/actors/${res.body._id}`);
             })
             .then(res => {
-                assert.deepEqual(res.body, {removed: true});
+                assert.deepEqual(res.body, { removed: true });
             });
     });
+    
 });
