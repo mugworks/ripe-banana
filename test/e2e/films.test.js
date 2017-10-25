@@ -60,7 +60,7 @@ describe('Film API', () => {
     });
 
 
-    it.only('gets all films', () => {
+    it('gets all films', () => {
 
 
         const filmArray = [movie1, movie2].map(movie => {
