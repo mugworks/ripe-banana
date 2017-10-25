@@ -21,7 +21,7 @@ describe('Actors API', () => {
             });
     });
 
-    it.only('get actor by id and return pob, dob, and film title and release date using id', () => {
+    it('get actor by id and return pob, dob, and film title and release date using id', () => {
 
         let savedActor = null;
 
@@ -51,18 +51,8 @@ describe('Actors API', () => {
             .then(res => {
                 assert.deepEqual(res.body.name, savedActor.name);
                 assert.deepEqual(res.body.pob, savedActor.pob);
-                console.log(res.body, 'FINDTitle');
                 assert.ok(res.body.films);
             });
-    });
-
-    it('get by id return 404 with bad id', () => {
-        return request.get('/api/filmIndustry/actors/59eb8057ea2b371badf14536')
-            .then(
-                () => { throw new Error('Unexpected error'); },
-                err => {
-                    assert.equal(err.status, 404);
-                });
     });
 
     it('get all actors', () => {
