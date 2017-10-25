@@ -2,7 +2,7 @@ const request = require('./request');
 const mongoose = require('mongoose');
 const assert = require('chai').assert;
 
-describe.only('Reviewer API', () => {
+describe('Reviewer API', () => {
     let studio = {
         name: 'MGM'
     };
