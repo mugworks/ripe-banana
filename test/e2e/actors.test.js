@@ -29,29 +29,28 @@ describe('Actors API', () => {
             .send(actor)
             .then(res => {
                 savedActor = res.body;
-                return request.get(`/api/filmIndustry/actors/${savedActor._id}`)
-                    .then(() => {
-                        let studioId = '59eda47c92868f6ce7de8b24';
-                        let film = {
-                            title: 'Thelma and Louise',
-                            studio: studioId,
-                            released: new Date ('1991'),
-                            cast: [{
-                                part: 'Louise',
-                                actor: savedActor._id
-                            }]
-                        };
-                        return request.post('/api/filmIndustry/films')
-                            .send(film)
-                            .then(() => {
-                                return request.get(`/api/filmIndustry/actors/${savedActor._id}`);
-                            });
-                    });
+
+                let studioId = '59eda47c92868f6ce7de8b24';
+                let film = {
+                    title: 'Thelma and Louise',
+                    studio: studioId,
+                    released: new Date ('1991'),
+                    cast: [{
+                        part: 'Louise',
+                        actor: savedActor._id
+                    }]
+                };
+                return request.post('/api/filmIndustry/films')
+                    .send(film);
+            })    
+            .then(() => {
+                return request.get(`/api/filmIndustry/actors/${savedActor._id}`);
             })
             .then(res => {
                 assert.deepEqual(res.body.name, savedActor.name);
                 assert.deepEqual(res.body.pob, savedActor.pob);
                 assert.ok(res.body.films);
+                assert.deepEqual(res.body.films[0][0], 'Thelma and Louise');
             });
     });
 
