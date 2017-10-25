@@ -9,7 +9,7 @@ describe('Actors API', () => {
 
     const actor = {
         name: 'George Clooney',
-        dob: 1961,
+        dob: new Date('1961-05-06'),
         pob: 'Lexington KY'
     };
 
@@ -21,32 +21,44 @@ describe('Actors API', () => {
             });
     });
 
-    it('get actor with an id', () => {
+    it('get actor by id and return pob, dob, and film title and release date using id', () => {
+
         let savedActor = null;
+
         return request.post('/api/filmIndustry/actors')
             .send(actor)
             .then(res => {
                 savedActor = res.body;
-                return request.get(`/api/filmIndustry/actors/${savedActor._id}`);
+                return request.get(`/api/filmIndustry/actors/${savedActor._id}`)
+                    .then(() => {
+                        let studioId = '59eda47c92868f6ce7de8b24';
+                        let film = {
+                            title: 'Thelma and Louise',
+                            studio: studioId,
+                            released: new Date ('1991'),
+                            cast: [{
+                                part: 'Louise',
+                                actor: savedActor._id
+                            }]
+                        };
+                        return request.post('/api/filmIndustry/films')
+                            .send(film)
+                            .then(() => {
+                                return request.get(`/api/filmIndustry/actors/${savedActor._id}`);
+                            });
+                    });
             })
             .then(res => {
-                assert.deepEqual(res.body, savedActor);
+                assert.deepEqual(res.body.name, savedActor.name);
+                assert.deepEqual(res.body.pob, savedActor.pob);
+                assert.ok(res.body.films);
             });
     });
 
-    it('get by id return 404 with bad id', () => {
-        return request.get('/api/filmIndustry/actors/59eb8057ea2b371badf14536')
-            .then(
-                () => { throw new Error('Unexpected error'); },
-                err => {
-                    assert.equal(err.status, 404);
-                });
-    });
-
-    it('get all actors',() => {
+    it('get all actors', () => {
         const actor2 = {
             name: 'Tom Hanks',
-            dob: 1956,
+            dob: new Date('1956-07-09'),
             pob: 'Concord CA'
         };
 
@@ -59,11 +71,14 @@ describe('Actors API', () => {
         let saved = null;
         return Promise.all(actorCollection)
             .then(_saved => {
-                saved =_saved;
+                saved = _saved;
                 return request.get('/api/filmIndustry/actors');
             })
             .then(res => {
                 assert.deepEqual(res.body, saved);
+                assert.equal(res.body[1].pob, 'Concord CA');
+                assert.equal(res.body[1].dob.slice(0, 4), 1956);
+                assert.equal(res.body[1].name, 'Tom Hanks');
             });
     });
 
@@ -90,7 +105,8 @@ describe('Actors API', () => {
                 return request.delete(`/api/filmIndustry/actors/${res.body._id}`);
             })
             .then(res => {
-                assert.deepEqual(res.body, {removed: true});
+                assert.deepEqual(res.body, { removed: true });
             });
     });
+    
 });
