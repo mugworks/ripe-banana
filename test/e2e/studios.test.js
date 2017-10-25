@@ -2,12 +2,10 @@ const request = require('./request');
 const mongoose = require('mongoose');
 const assert = require('chai').assert;
 
+
 describe('Studios API', () => {
 
     
-    
-    beforeEach(() => mongoose.connection.dropDatabase());
-
     const studio = {
         name: 'Paramount Pictures',
         address: {
@@ -17,17 +15,45 @@ describe('Studios API', () => {
         }
     };
 
-    // let movie1 = {
-    //     title: 'Wonder Woman',
-    //     studio: studio._id,
-    //     released: 2017
-    // };
+    beforeEach(() => {
+        
+        mongoose.connection.dropDatabase();
 
+    });
+
+    
     it('saves a studio', () => {
         return request.post('/api/filmIndustry/studios')
             .send(studio)
             .then(({ body }) => {
                 assert.equal(body.name, studio.name);
+            });
+    });
+
+    it('gets all studios by name', () => {
+        
+        const studio2 = {
+            name: 'MGM',
+            address: {
+                city: 'Burbank',
+                state: 'California',
+                country: 'USA'
+            }
+        };
+
+        const studioArray = [studio, studio2].map(studio => {
+            return request.post('/api/filmIndustry/studios')
+                .send(studio)
+                .then(res => res.body);
+        });
+        let saved = null;
+        return Promise.all(studioArray)
+            .then(_saved => {
+                saved = _saved;
+                return request.get('/api/filmIndustry/studios');
+            })
+            .then(res => {
+                assert.equal(res.body.name, saved.name);  
             });
     });
 
@@ -37,12 +63,24 @@ describe('Studios API', () => {
             .send(studio)
             .then(res => {
                 savedStudio = res.body;
-                return request.get(`/api/filmIndustry/studios/${savedStudio._id}`);
+                return request.get(`/api/filmIndustry/studios/${savedStudio._id}`)
+                    .then(() => {
+                        let movie = {
+                            title: 'Field of Dreams',
+                            studio: savedStudio._id,
+                            released: '1995'
+                        };
+                        return request.post('/api/filmIndustry/films')
+                            .send(movie)
+                            .then(() => {
+                                return request.get(`/api/filmIndustry/studios/${savedStudio._id}`);
+                            });
+                    });
             })
             .then(res => {
-                assert.deepEqual(res.body.name, savedStudio.name);
+                assert.equal(res.body.name, savedStudio.name);
                 assert.deepEqual(res.body.address, savedStudio.address);
-                // assert.ok(res.body.film.title);
+                assert.equal(res.body.films, 'Field of Dreams');
             });
     });
 
@@ -84,4 +122,17 @@ describe('Studios API', () => {
                 });
     });
 
+    it('updates studio with an id', () => {
+        return request.post('/api/filmIndustry/studios')
+            .send(studio)
+            .then(res => {
+                let savedStudio = res.body;    
+                savedStudio.name = 'Disney';
+                return request.put(`/api/filmIndustry/studios/${savedStudio._id}`)
+                    .send(savedStudio);
+            })
+            .then(res => {
+                assert.equal(res.body.name, 'Disney');
+            });
+    });
 });
