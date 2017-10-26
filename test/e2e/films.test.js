@@ -11,6 +11,11 @@ describe('Film API', () => {
     let actor = {
         name: 'Ryan Gosling'
     };
+
+    let reviewer1 = {
+        name: 'Travis',
+        company: 'theweb'
+    };
     
     let movie1 = null;
     let movie2 = null;
@@ -37,7 +42,7 @@ describe('Film API', () => {
                             title: 'Wonder Woman',
                             studio: studio._id,
                             released: 2017,
-                            cast: {actor: actor._id}
+                            cast: [{part: 'smurf', actor: actor._id}]
                         };
                         
 
@@ -45,8 +50,20 @@ describe('Film API', () => {
                             title: 'Shawshank Redemption',
                             studio: studio._id,
                             released: 1995,
-                            cast: [{actor: actor._id}]
+                            cast: [{part: 'prisoner', actor: actor._id}]
                         };
+                    })
+                    .then(() => {
+                        return request.post('/api/filmIndustry/reviewers')
+                            .send(reviewer1)
+                            .then(savedReviewer => {
+                                reviewer1._id = savedReviewer.body._id;
+                                console.log('what is here??', savedReviewer.body._id);
+                            
+                                
+                                
+                            });
+
                     });
             });
     });
@@ -83,7 +100,7 @@ describe('Film API', () => {
 
     }),
 
-    it('get a film by id', () => {
+    it.only('get a film by id', () => {
         let film = null;
         return request.post('/api/filmIndustry/films')
             .send(movie1)
@@ -91,12 +108,33 @@ describe('Film API', () => {
                 film = res.body;
                 return request.get(`/api/filmIndustry/films/${film._id}`);
             })
+            .then (() => {
+                console.log('filmid', film._id);
+                console.log('reviewerid', reviewer1._id);
+                let review = {
+                    rating: 3,
+                    reviewer: reviewer1._id,
+                    review_text: 'Amazing movie',
+                    film: film._id,
+                };
+                return request.post('/api/filmIndustry/reviews')
+                    .send(review)
+                    .then(savedReview => {
+                        review = savedReview;
+                    });
+            })
+            .then(() => {
+                return request.get(`/api/filmIndustry/films/${film._id}`);
+            })
             .then(res => {
+                console.log('what is here?', res.body.studio);
+                console.log('film.cast?', film.cast[0].actor);
                 assert.equal(res.body.title, film.title);
                 assert.equal(res.body.released, film.released);
-                assert.equal(res.body.studio._id, film.studio);
-                assert.equal(res.body.cast.part, film.cast.part);
-                assert.ok(res.body.cast[0].actor.name);
+                // assert.equal(res.body.studio._id, film.studio); //not needed
+                // assert.equal(res.body.studio.name, film.name); //doesnt work
+                assert.equal(res.body.cast[0].part, film.cast[0].part);
+                assert.equal(res.body.cast[0].actor.name, 'Ryan Gosling'); 
             });
     }),
 
