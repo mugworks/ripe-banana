@@ -10,11 +10,11 @@
             "name": "Mocha Tests",
             "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
             "args": [
-                "--recursive",
                 "-u",
                 "tdd",
                 "--timeout",
                 "999999",
+                "--recursive",
                 "--colors",
                 "${workspaceRoot}/test"
             ],
