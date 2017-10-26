@@ -1,7 +1,7 @@
 const assert = require('chai').assert;
 const User = require('../../lib/models/user');
 
-describe('user model', () => {
+describe.only('user model', () => {
 
     const user = new User({
         email: 'mug@mug.com'
@@ -9,14 +9,14 @@ describe('user model', () => {
 
     const password = 'abc';
 
-    it.only('generates hash from password', () => {
+    it('generates hash from password', () => {
         user.generateHash(password);
         assert.isOk(user.hash);
         assert.notEqual(user.hash, password);
     });
 
-    // it('compares password', () => {
-    //     assert.isTrue(user.comparePassword('abc'));
-    //     assert.isFalse(user.comparePassword('bad password'));
-    // });
+    it('compares password', () => {
+        assert.isTrue(user.comparePassword('abc'));
+        assert.isFalse(user.comparePassword('bad password'));
+    });
 });
