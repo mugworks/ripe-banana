@@ -94,7 +94,7 @@ describe('Reviewer API', () => {
             });
     });
 
-    it.only('get all reviewers',() => {
+    it('get all reviewers',() => {
 
         let reviewer1 = {
             name: 'Erdem Ebert',
