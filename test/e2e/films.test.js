@@ -58,10 +58,7 @@ describe('Film API', () => {
                             .send(reviewer1)
                             .then(savedReviewer => {
                                 reviewer1._id = savedReviewer.body._id;
-                                console.log('what is here??', savedReviewer.body._id);
-                            
-                                
-                                
+                                   
                             });
 
                     });
@@ -100,17 +97,15 @@ describe('Film API', () => {
 
     }),
 
-    it.only('get a film by id', () => {
+    it('get a film by id', () => {
         let film = null;
         return request.post('/api/filmIndustry/films')
             .send(movie1)
             .then(res => {
                 film = res.body;
-                return request.get(`/api/filmIndustry/films/${film._id}`);
+                // return request.get(`/api/filmIndustry/films/${film._id}`);
             })
             .then (() => {
-                console.log('filmid', film._id);
-                console.log('reviewerid', reviewer1._id);
                 let review = {
                     rating: 3,
                     reviewer: reviewer1._id,
@@ -127,14 +122,14 @@ describe('Film API', () => {
                 return request.get(`/api/filmIndustry/films/${film._id}`);
             })
             .then(res => {
-                console.log('what is here?', res.body.studio);
-                console.log('film.cast?', film.cast[0].actor);
                 assert.equal(res.body.title, film.title);
                 assert.equal(res.body.released, film.released);
-                // assert.equal(res.body.studio._id, film.studio); //not needed
-                // assert.equal(res.body.studio.name, film.name); //doesnt work
+                assert.equal(res.body.reviews[0].rating, '3'); 
+                assert.equal(res.body.reviews[0].review_text, 'Amazing movie');
+                assert.equal(res.body.studio.name, 'MGM'); 
                 assert.equal(res.body.cast[0].part, film.cast[0].part);
                 assert.equal(res.body.cast[0].actor.name, 'Ryan Gosling'); 
+                assert.equal(res.body.reviews[0].reviewer.name, 'Travis');
             });
     }),
 
