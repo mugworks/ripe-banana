@@ -94,10 +94,10 @@ describe('Reviewer API', () => {
             });
     });
 
-    it('get all reviewers',() => {
+    it.only('get all reviewers',() => {
 
         let reviewer1 = {
-            name: 'Roger Ebert',
+            name: 'Erdem Ebert',
             company: 'Siskel & Ebert'
         };
 
@@ -118,7 +118,7 @@ describe('Reviewer API', () => {
                 return request.get('/api/filmIndustry/reviewers');
             })
             .then(res => {
-                assert.deepEqual(res.body.name, saved.name);
+                assert.deepEqual(res.body[1].name, saved[0].name);
             });
     });
 
