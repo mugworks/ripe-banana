@@ -23,6 +23,9 @@ describe('Film API', () => {
     beforeEach(() => {
 
         mongoose.connection.dropDatabase();
+    });
+
+    beforeEach(() => {
 
         return request.post('/api/filmIndustry/studios')
             .send(studio)
