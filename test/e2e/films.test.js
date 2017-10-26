@@ -103,7 +103,6 @@ describe('Film API', () => {
             .send(movie1)
             .then(res => {
                 film = res.body;
-                // return request.get(`/api/filmIndustry/films/${film._id}`);
             })
             .then (() => {
                 let review = {

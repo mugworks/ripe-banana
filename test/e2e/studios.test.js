@@ -57,30 +57,28 @@ describe('Studios API', () => {
             });
     });
 
-    it('gets a studio with an id', () => {
+    it.only('gets a studio with an id', () => {
         let savedStudio = null;
         return request.post('/api/filmIndustry/studios')
             .send(studio)
             .then(res => {
                 savedStudio = res.body;
-                return request.get(`/api/filmIndustry/studios/${savedStudio._id}`)
-                    .then(() => {
-                        let movie = {
-                            title: 'Field of Dreams',
-                            studio: savedStudio._id,
-                            released: '1995'
-                        };
-                        return request.post('/api/filmIndustry/films')
-                            .send(movie)
-                            .then(() => {
-                                return request.get(`/api/filmIndustry/studios/${savedStudio._id}`);
-                            });
-                    });
+                let movie = {
+                    title: 'Field of Dreams',
+                    studio: savedStudio._id,
+                    released: '1995'
+                };
+                return request.post('/api/filmIndustry/films')
+                    .send(movie);
+            })
+            .then(() => {
+                return request.get(`/api/filmIndustry/studios/${savedStudio._id}`);
+            
             })
             .then(res => {
                 assert.equal(res.body.name, savedStudio.name);
                 assert.deepEqual(res.body.address, savedStudio.address);
-                assert.equal(res.body.films, 'Field of Dreams');
+                assert.deepEqual(res.body.films, ['Field of Dreams']);
             });
     });
 
