@@ -3,7 +3,7 @@ const assert = require('chai').assert;
 // const db = require('./db');
 const mongoose = require('mongoose');
 
-describe.only('Auth API', () => {
+describe('Auth API', () => {
 
     beforeEach(() => mongoose.connection.dropDatabase());
 
@@ -44,6 +44,15 @@ describe.only('Auth API', () => {
                     assert.equal(err.status, 400);
                 }
             );
+    });
+
+    it.only('Signin with same credential', () => {
+        return request
+            .post('/api/auth/signin')
+            .send({email: 'user', password: 'abc'})
+            .then(({body}) => {
+                assert.isOk(body.token);
+            });
     });
 
 });
