@@ -12,8 +12,8 @@ describe('Auth API', () => {
         return request
             .post('/api/auth/signup')
             .send({
-                email: 'user',
-                password: 'abc'
+                email: 'roger@ebert.com',
+                password: 'twothumbsup'
             })
             .then(({body}) => token = body.token);
     });
@@ -25,7 +25,7 @@ describe('Auth API', () => {
     it('Can not signup with same email', () => {
         return request
             .post('/api/auth/signup')
-            .send({email: 'user', password: 'def'})
+            .send({email: 'roger@ebert.com', password: 'def'})
             .then(
                 () => {throw new Error('Unexpected successful response'); },
                 err => {
@@ -46,10 +46,10 @@ describe('Auth API', () => {
             );
     });
 
-    it.only('Signin with same credential', () => {
+    it('Signin with same credential', () => {
         return request
             .post('/api/auth/signin')
-            .send({email: 'user', password: 'abc'})
+            .send({email: 'roger@ebert.com', password: 'twothumbsup'})
             .then(({body}) => {
                 assert.isOk(body.token);
             });

@@ -1,6 +1,7 @@
 const request = require('./request');
 const mongoose = require('mongoose');
 const assert = require('chai').assert;
+// const tokenService = require('../../lib/token-service');
 
 describe('Reviewer API', () => {
     let studio = {
@@ -18,8 +19,15 @@ describe('Reviewer API', () => {
 
     beforeEach(() => mongoose.connection.dropDatabase());
 
+    let token = '';
     beforeEach(() => {
-        
+        return request
+            .post('/api/filmIndustry/suth/signup')
+            .send({email: 'roger@ebert.com', password:'twothumbsup'})
+            .then(({body}) => token = body.token);
+    });
+       
+    beforeEach(() => {
         return request.post('/api/filmIndustry/reviewers')
             .send(reviewer)
             .then(({ body }) => {
