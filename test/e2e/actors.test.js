@@ -1,12 +1,13 @@
 const request = require('./request');
-const mongoose = require('mongoose');
+// const mongoose = require('mongoose');
 const assert = require('chai').assert;
+const db = require('./db');
 
 
 describe('Actors API', () => {
 
-    beforeEach(() => mongoose.connection.dropDatabase());
-
+    beforeEach(() => db.drop());
+    let token = '';
     const actor = {
         name: 'George Clooney',
         dob: new Date('1961-05-06'),
@@ -15,6 +16,7 @@ describe('Actors API', () => {
 
     it('saves an actor', () => {
         return request.post('/api/filmIndustry/actors')
+            .set('Authorization', token) //eslint-disable-line
             .send(actor)
             .then(({ body }) => {
                 assert.equal(body.name, actor.name);

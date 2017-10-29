@@ -1,7 +1,7 @@
 const assert = require('chai').assert;
 const Reviewer = require('../../lib/models/reviewer');
 
-describe.only('Reviewer model', () => {
+describe('Reviewer model', () => {
     
     const reviewer = new Reviewer({
         email: 'roger@ebert.com'

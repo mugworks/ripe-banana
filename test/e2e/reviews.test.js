@@ -1,8 +1,10 @@
 const request = require('./request');
-const mongoose = require('mongoose');
+// const mongoose = require('mongoose');
 const assert = require('chai').assert;
+const db = require('./db');
+const tokenService = require('../../lib/utils/token-service');
 
-describe('Reviews API', () => {
+describe.only('Reviews API', () => {
 
     let studio = {
         name: 'MGM'
@@ -13,20 +15,25 @@ describe('Reviews API', () => {
     };
     
     let reviewer = {
-        name: 'Roger Ebert',
-        company: 'Siskel & Ebert'
+        email: 'michele@home.com',
+        company: 'mugworks',
+        password: '23456'
     };
    
     
-    beforeEach(() => mongoose.connection.dropDatabase());
+    beforeEach(() => db.drop());
     let reviewArray = null;
+    let token = '';
 
     beforeEach(() => {
-        return request.post('/api/filmIndustry/reviewers')
+        return request.post('/api/filmIndustry/auth/signup')
             .send(reviewer)
             .then(({ body }) => {
-                reviewer._id = body._id;
-                return body;
+                token = body.token;
+                return tokenService.verify(token);
+            })
+            .then((res) => {
+                reviewer._id = res.id;
             })
             .then(()=>{
                 return request.post('/api/filmIndustry/studios')
@@ -76,8 +83,10 @@ describe('Reviews API', () => {
             });
     });
 
-    it('saves a review', () => {
+    it.only('saves a review', () => {
+        console.log('array', reviewArray[0]);
         return request.post('/api/filmIndustry/reviews/') 
+            .set('Authorization', token)
             .send(reviewArray[0])
             .then(({ body }) => {
                 assert.equal(body.rating, reviewArray[0].rating);
