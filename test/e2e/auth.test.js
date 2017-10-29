@@ -11,6 +11,8 @@ describe.only('Auth Api', () => {
         return request
             .post('/api/auth/signup')
             .send({
+                name: 'siskel',
+                company: 'Ny Times',
                 email: 'testUser1',
                 password: 'abc'
             })
@@ -25,6 +27,8 @@ describe.only('Auth Api', () => {
         return request
             .post('/api/auth/signup')
             .send({ 
+                name: 'siskel',
+                company: 'Ny Times',
                 email: 'testUser1',
                 password: 'def'})
             .then(
@@ -39,6 +43,8 @@ describe.only('Auth Api', () => {
         return request
             .post('/api/auth/signup')
             .send( {
+                name: 'different siskel',
+                company: 'Ny Times',
                 email: 'testUser2',
                 password: ''
             })
@@ -47,5 +53,32 @@ describe.only('Auth Api', () => {
                 err => {
                     assert.equal(err.status, 400);
                 });
+    });
+
+    it('signin with same credentials', () => {
+        return request
+            .post('/api/auth/signin')
+            .send({ 
+                email: 'testUser1',
+                password: 'abc' 
+            })
+            .then(({ body }) => {
+                assert.isOk(body.token);
+            });
+    });
+
+    it('sign in with bad email', () => {
+        return request  
+            .post('/api/auth/signin')
+            .send({
+                email: 'testUserbad',
+                password: 'abc' 
+            })
+            .then(
+                () => {throw new Error('Unexpected successful response');},
+                err => {
+                    assert.equal(err.status, 401);
+                }
+            );
     });
 });
