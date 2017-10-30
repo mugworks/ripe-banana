@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const assert = require('chai').assert;
 const tokenService = require('../../lib/utils/token-service');
 
-describe.only('Reviewer API', () => {
+describe('Reviewer API', () => {
     let studio = {
         name: 'MGM'
     };
