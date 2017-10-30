@@ -88,7 +88,7 @@ describe('Film API', () => {
             });
     });
 
-    it.only('cannot save a film if not admin', () => {
+    it('cannot save a film if not admin', () => {
         return request.post('/api/filmIndustry/films')
             .send(movie1)
             .then(() => {
@@ -161,10 +161,12 @@ describe('Film API', () => {
     it('deletes with id', () => {
         let savedFilm =null;
         return request.post('/api/filmIndustry/films')
+            .set('Authorization', adminToken)
             .send(movie1)
             .then(res => {
                 savedFilm = res.body;
-                return request.delete(`/api/filmIndustry/films/${savedFilm._id}`);
+                return request.delete(`/api/filmIndustry/films/${savedFilm._id}`)
+                    .set('Authorization', adminToken);
             })
             .then(res => {
                 assert.deepEqual(res.body, { removed: true });
@@ -181,9 +183,12 @@ describe('Film API', () => {
     it('changes saved movie with id', () => {
         let update = { title: 'Rambo'};
         return request.post('/api/filmIndustry/films')
+            .set('Authorization', adminToken)
             .send(movie1)
             .then(res => {
-                return request.put(`/api/filmIndustry/films/${res.body._id}`).send(update);
+                return request.put(`/api/filmIndustry/films/${res.body._id}`)
+                    .set('Authorization', adminToken)
+                    .send(update);
             })
             .then(res => {
                 assert.equal(res.body.title, update.title);
@@ -192,11 +197,13 @@ describe('Film API', () => {
 
     it('updates a film', () => {
         return request.post('/api/filmIndustry/films')
+            .set('Authorization', adminToken)
             .send(movie1)
             .then(res => {
                 let savedMovie = res.body;    
                 savedMovie.title = 'Wonder Bread';
                 return request.put(`/api/filmIndustry/films/${savedMovie._id}`)
+                    .set('Authorization', adminToken)   
                     .send(savedMovie);
             })
             .then(res => {
@@ -207,10 +214,12 @@ describe('Film API', () => {
     it('removes by id', () => {
         let film = null;
         return request.post('/api/films')
+            .set('Authorization', adminToken)
             .send(film)
             .then(res => {
                 film = res.body;
-                return request.delete(`/api/films/${film._id}`);
+                return request.delete(`/api/films/${film._id}`)
+                    .set('Authorization', adminToken);
             })
             .then(res => {
                 assert.deepEqual(res.body, { removed: true });
@@ -224,5 +233,3 @@ describe('Film API', () => {
     });
 
 });
-
-
