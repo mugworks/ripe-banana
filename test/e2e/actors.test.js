@@ -2,24 +2,43 @@ const request = require('./request');
 // const mongoose = require('mongoose');
 const assert = require('chai').assert;
 const db = require('./db');
+const tokenService = require('../../lib/utils/token-service');
 
 
 describe('Actors API', () => {
 
     beforeEach(() => db.drop());
-    let token = '';
+    let adminToken = '';
+
     const actor = {
         name: 'George Clooney',
         dob: new Date('1961-05-06'),
         pob: 'Lexington KY'
     };
 
-    it('saves an actor', () => {
+    beforeEach(() => {
+        return tokenService
+            .sign({ roles: ['admin'] })
+            .then(token => adminToken = token);
+    });
+
+    it('saves an actor if admin', () => {
         return request.post('/api/filmIndustry/actors')
-            .set('Authorization', token) //eslint-disable-line
+            .set('Authorization', adminToken) //eslint-disable-line
             .send(actor)
             .then(({ body }) => {
                 assert.equal(body.name, actor.name);
+            });
+    });
+
+    it('cannot save an actor if not admin', () => {
+        return request.post('/api/filmIndustry/actors')
+            .send(actor)
+            .then(() => {
+                assert(false);  
+            })
+            .catch((error) => {
+                assert.equal(error.status, 401);
             });
     });
 
@@ -28,6 +47,7 @@ describe('Actors API', () => {
         let savedActor = null;
 
         return request.post('/api/filmIndustry/actors')
+            
             .send(actor)
             .then(res => {
                 savedActor = res.body;
@@ -83,27 +103,53 @@ describe('Actors API', () => {
             });
     });
 
-    it('updates actor with an id', () => {
+    it('updates actor with an id for admin', () => {
         const update = {
             name: 'Charlie Chaplin',
             dob: 1961,
             pob: 'Lexington KY'
         };
         return request.post('/api/filmIndustry/actors')
+            .set('Authorization', adminToken)
             .send(actor)
             .then(res => {
-                return request.put(`/api/filmIndustry/actors/${res.body._id}`).send(update);
+                return request.put(`/api/filmIndustry/actors/${res.body._id}`)
+                    .set('Authorization', adminToken)
+                    .send(update);
             })
             .then(res => {
                 assert.equal(res.body.name, update.name);
             });
     });
 
-    it('removes an actor by id if no film exists', () => {
+    it('cannot update an actor with an id if not admin', () => {
+        const update = {
+            name: 'Charlie Chaplin',
+            dob: 1961,
+            pob: 'Lexington KY'
+        };
         return request.post('/api/filmIndustry/actors')
+            .set('Authorization', adminToken)
             .send(actor)
             .then(res => {
-                return request.delete(`/api/filmIndustry/actors/${res.body._id}`);
+                return request.put(`/api/filmIndustry/actors/${res.body._id}`)
+                    .send(update);
+            })
+            .then(() => {
+                assert(false);  
+            })
+            .catch((error) => {
+                assert.equal(error.status, 401);
+            });
+    });
+
+    it('removes an actor by id if no film exists', () => {
+        return request.post('/api/filmIndustry/actors')
+            .set('Authorization', adminToken)
+            .send(actor)
+            .then(res => {
+                return request.delete(`/api/filmIndustry/actors/${res.body._id}`)
+                    .set('Authorization', adminToken);
             })
             .then(res => {
                 assert.deepEqual(res.body, { removed: true });

@@ -1,10 +1,9 @@
 const request = require('./request');
-// const mongoose = require('mongoose');
 const assert = require('chai').assert;
 const db = require('./db');
 const tokenService = require('../../lib/utils/token-service');
 
-describe.only('Reviews API', () => {
+describe('Reviews API', () => {
 
     let studio = {
         name: 'MGM'
@@ -83,9 +82,8 @@ describe.only('Reviews API', () => {
             });
     });
 
-    it.only('saves a review', () => {
-        console.log('array', reviewArray[0]);
-        return request.post('/api/filmIndustry/reviews/') 
+    it('saves a review', () => {
+        return request.post('/api/filmIndustry/reviews/')
             .set('Authorization', token)
             .send(reviewArray[0])
             .then(({ body }) => {
@@ -96,6 +94,7 @@ describe.only('Reviews API', () => {
     it('gets review with id', () => {
         let savedReview = null;
         return request.post('/api/filmIndustry/reviews')
+            .set('Authorization', token)
             .send(reviewArray[0])
             .then(res => {
                 savedReview = res.body;
@@ -110,6 +109,7 @@ describe.only('Reviews API', () => {
 
         let reviewPromises = reviewArray.map(item => {
             return request.post('/api/filmIndustry/reviews')
+                .set('Authorization', token)
                 .send(item)
                 .then(res => res.body);
         });

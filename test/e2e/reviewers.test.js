@@ -1,5 +1,4 @@
 const request = require('./request');
-// const mongoose = require('mongoose');
 const assert = require('chai').assert;
 const db =require('./db');
 const tokenService = require('../../lib/utils/token-service');
@@ -21,15 +20,7 @@ describe('Reviewer API', () => {
 
     beforeEach(() => db.drop());
 
-    // beforeEach(() => db.getToken());
-
-    let token = ''; //eslint-disable-line
-    // beforeEach(() => {
-    //     return request
-    //         .post('/api/filmIndustry/auth/signup')
-    //         .send({email: 'roger@ebert.com', password:'twothumbsup'})
-    //         .then(({body}) => token = body.token);
-    // });
+    let token = '';
        
     beforeEach(() => {
         return request.post('/api/filmIndustry/auth/signup')
@@ -90,18 +81,6 @@ describe('Reviewer API', () => {
     });
 
     
-    // it.skip('saves a reviewer', () => {
-    //     let reviewer1 = {
-    //         email: 'Roger@Ebert.com',
-    //         company: 'Siskel & Ebert'
-    //     };
-    //     return request.post('/api/filmIndustry/reviewers')
-    //         .send(reviewer1)
-    //         .then(({ body }) => {
-    //             assert.equal(body.name, reviewer.name);
-    //         });
-    // });
-    
     it('gets a reviewer with an id', () => {
         return request.get(`/api/filmIndustry/reviewers/${reviewer._id}`)
             .then(({ body }) => {
@@ -131,7 +110,7 @@ describe('Reviewer API', () => {
     });
     
 
-    it.skip('updates reviewer with an id', () => {
+    it('updates reviewer with an id', () => {
         const update = { 
             name:'Someone Cool',
             company:'Siskel & Ebert'

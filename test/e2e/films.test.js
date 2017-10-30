@@ -1,6 +1,7 @@
 const request = require('./request');
-const mongoose = require('mongoose');
+const db = require('./db');
 const assert = require('chai').assert;
+const tokenService = require('../../lib/utils/token-service');
 
 describe('Film API', () => {
 
@@ -12,17 +13,35 @@ describe('Film API', () => {
         name: 'Ryan Gosling'
     };
 
-    let reviewer1 = {
-        name: 'Travis',
-        company: 'theweb'
+    let reviewer = {
+        email: 'roger@ebert.com',
+        password: 'twothumbsup',
+        company: 'Siskel & Ebert'
     };
     
     let movie1 = null;
     let movie2 = null;
 
-    beforeEach(() => {
+    beforeEach(() => db.drop());
+    let token = '';
+    let adminToken = '';
 
-        mongoose.connection.dropDatabase();
+    beforeEach(() => {
+        return tokenService
+            .sign({ roles: ['admin'] })
+            .then(token => adminToken = token);
+    });
+
+    beforeEach(() => {
+        return request.post('/api/filmIndustry/auth/signup')
+            .send(reviewer)
+            .then(({ body }) => {
+                token = body.token;
+                return tokenService.verify(token);
+            })
+            .then((res) => {
+                reviewer._id = res.id;
+            });
     });
 
     beforeEach(() => {
@@ -36,6 +55,7 @@ describe('Film API', () => {
             })
             .then(() => {
                 return request.post('/api/filmIndustry/actors')
+                    .set('Authorization', adminToken)
                     .send(actor)
                     .then(res => res.body)
                     .then(savedActor => {
@@ -55,24 +75,27 @@ describe('Film API', () => {
                             released: 1995,
                             cast: [{part: 'prisoner', actor: actor._id}]
                         };
-                    })
-                    .then(() => {
-                        return request.post('/api/filmIndustry/reviewers')
-                            .send(reviewer1)
-                            .then(savedReviewer => {
-                                reviewer1._id = savedReviewer.body._id;
-                                   
-                            });
-
                     });
             });
     });
 
     it('saves a film', () => {
         return request.post('/api/filmIndustry/films')
+            .set('Authorization', adminToken)
             .send(movie1)
             .then(({ body }) => {
                 assert.equal(body.title, movie1.title);
+            });
+    });
+
+    it.only('cannot save a film if not admin', () => {
+        return request.post('/api/filmIndustry/films')
+            .send(movie1)
+            .then(() => {
+                assert(false);  
+            })
+            .catch((error) => {
+                assert.equal(error.status, 401);
             });
     });
 
@@ -110,7 +133,7 @@ describe('Film API', () => {
             .then (() => {
                 let review = {
                     rating: 3,
-                    reviewer: reviewer1._id,
+                    reviewer: reviewer._id,
                     review_text: 'Amazing movie',
                     film: film._id,
                 };
