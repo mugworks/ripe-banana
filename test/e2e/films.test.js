@@ -14,7 +14,9 @@ describe('Film API', () => {
 
     let reviewer1 = {
         name: 'Travis',
-        company: 'theweb'
+        company: 'theweb',
+        email: 'someone',
+        password: '456'
     };
     
     let movie1 = null;

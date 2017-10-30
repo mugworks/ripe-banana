@@ -3,7 +3,7 @@ const assert = require('chai').assert;
 const mongoose = require('mongoose');
 // const db = require('./db');
 
-describe.only('Auth Api', () => {
+describe('Auth Api', () => {
     beforeEach(() => mongoose.connection.dropDatabase());
 
     let token = null;
