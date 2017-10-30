@@ -47,7 +47,7 @@ describe('Actors API', () => {
         let savedActor = null;
 
         return request.post('/api/filmIndustry/actors')
-            
+            .set('Authorization', adminToken)
             .send(actor)
             .then(res => {
                 savedActor = res.body;
@@ -63,6 +63,7 @@ describe('Actors API', () => {
                     }]
                 };
                 return request.post('/api/filmIndustry/films')
+                    .set('Authorization', adminToken)
                     .send(film);
             })    
             .then(() => {
@@ -85,6 +86,7 @@ describe('Actors API', () => {
 
         let actorCollection = [actor, actor2].map(item => {
             return request.post('/api/filmIndustry/actors')
+                .set('Authorization', adminToken)
                 .send(item)
                 .then(res => res.body);
         });

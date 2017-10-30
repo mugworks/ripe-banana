@@ -1,6 +1,7 @@
 const request = require('./request');
-const mongoose = require('mongoose');
+const db = require('./db');
 const assert = require('chai').assert;
+const tokenService = require('../../lib/utils/token-service');
 
 
 describe('Studios API', () => {
@@ -15,15 +16,18 @@ describe('Studios API', () => {
         }
     };
 
+    beforeEach(() => db.drop());
+    let adminToken = '';
+    
     beforeEach(() => {
-        
-        mongoose.connection.dropDatabase();
-
+        return tokenService
+            .sign({ roles: ['admin'] })
+            .then(token => adminToken = token);
     });
-
     
     it('saves a studio', () => {
         return request.post('/api/filmIndustry/studios')
+            .set('Authorization', adminToken)
             .send(studio)
             .then(({ body }) => {
                 assert.equal(body.name, studio.name);
@@ -43,6 +47,7 @@ describe('Studios API', () => {
 
         const studioArray = [studio, studio2].map(studio => {
             return request.post('/api/filmIndustry/studios')
+                .set('Authorization', adminToken)
                 .send(studio)
                 .then(res => res.body);
         });
@@ -60,6 +65,7 @@ describe('Studios API', () => {
     it('gets a studio with an id', () => {
         let savedStudio = null;
         return request.post('/api/filmIndustry/studios')
+            .set('Authorization', adminToken)
             .send(studio)
             .then(res => {
                 savedStudio = res.body;
@@ -69,6 +75,7 @@ describe('Studios API', () => {
                     released: '1995'
                 };
                 return request.post('/api/filmIndustry/films')
+                    .set('Authorization', adminToken)
                     .send(movie);
             })
             .then(() => {
@@ -85,10 +92,12 @@ describe('Studios API', () => {
     it('removes by id', () => {
         let studio = null;
         return request.post('/api/studios')
+            .set('Authorization', adminToken)
             .send(studio)
             .then(res => {
                 studio = res.body;
-                return request.delete(`/api/studios/${studio._id}`);
+                return request.delete(`/api/studios/${studio._id}`)
+                    .set('Authorization', adminToken);
             })
             .then(res => {
                 assert.deepEqual(res.body, { removed: true });
@@ -103,11 +112,13 @@ describe('Studios API', () => {
 
     it('updates studio with an id', () => {
         return request.post('/api/filmIndustry/studios')
+            .set('Authorization', adminToken)
             .send(studio)
             .then(res => {
                 let savedStudio = res.body;    
                 savedStudio.name = 'Disney';
                 return request.put(`/api/filmIndustry/studios/${savedStudio._id}`)
+                    .set('Authorization', adminToken)
                     .send(savedStudio);
             })
             .then(res => {

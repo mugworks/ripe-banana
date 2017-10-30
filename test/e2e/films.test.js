@@ -47,6 +47,7 @@ describe('Film API', () => {
     beforeEach(() => {
 
         return request.post('/api/filmIndustry/studios')
+            .set('Authorization', adminToken)
             .send(studio)
             .then(res => res.body)
             .then(savedStudio => {
@@ -105,6 +106,7 @@ describe('Film API', () => {
 
         const filmArray = [movie1, movie2].map(movie => {
             return request.post('/api/filmIndustry/films')
+                .set('Authorization', adminToken)
                 .send(movie)
                 .then(res => res.body);
         });
@@ -126,6 +128,7 @@ describe('Film API', () => {
     it('get a film by id', () => {
         let film = null;
         return request.post('/api/filmIndustry/films')
+            .set('Authorization', adminToken)
             .send(movie1)
             .then(res => {
                 film = res.body;
@@ -138,6 +141,7 @@ describe('Film API', () => {
                     film: film._id,
                 };
                 return request.post('/api/filmIndustry/reviews')
+                    .set('Authorization', adminToken)
                     .send(review)
                     .then(savedReview => {
                         review = savedReview;
@@ -147,6 +151,7 @@ describe('Film API', () => {
                 return request.get(`/api/filmIndustry/films/${film._id}`);
             })
             .then(res => {
+                console.log('response body', res.body.reviews);
                 assert.equal(res.body.title, film.title);
                 assert.equal(res.body.released, film.released);
                 assert.equal(res.body.reviews[0].rating, '3'); 
@@ -154,7 +159,7 @@ describe('Film API', () => {
                 assert.equal(res.body.studio.name, 'MGM'); 
                 assert.equal(res.body.cast[0].part, film.cast[0].part);
                 assert.equal(res.body.cast[0].actor.name, 'Ryan Gosling'); 
-                assert.equal(res.body.reviews[0].reviewer.name, 'Travis');
+                assert.equal(res.body.reviews[0].review_text, 'Amazing movie');
             });
     }),
 
@@ -175,6 +180,7 @@ describe('Film API', () => {
 
     it('return false delete with bad id', () => {
         return request.delete('/api/filmIndustry/films/59dfeaeb083bf9beecc97ce8')
+            .set('Authorization', adminToken)
             .then(res => {
                 assert.deepEqual(res.body, {removed: false});
             });
