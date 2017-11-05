@@ -1,9 +1,9 @@
 const request = require('./request');
-const assert = require('chai').assert;
 const db =require('./db');
+const assert = require('chai').assert;
 const tokenService = require('../../lib/utils/token-service');
 
-describe.only('Reviewer API', () => {
+describe('Reviewer API', () => {
     let studio = {
         name: 'MGM'
     };
@@ -121,7 +121,7 @@ describe.only('Reviewer API', () => {
     });
     
 
-    it('updates reviewer with an id', () => {
+    it.only('updates reviewer with an id', () => {
         // const update = { 
         //     email:'Someone Cool',
         //     company:'Siskel & Ebert'
@@ -142,6 +142,9 @@ describe.only('Reviewer API', () => {
             .set('Authorization', adminToken)
             .send(reviewer)
             .then(res => {
+                let savedReviewer = res.body;    
+                savedReviewer.company = 'Only Ebert';
+                console.log('savedReviewer', savedReviewer.company);
                 return request.put(`/api/filmIndustry/reviewers/${res.body._id}`)
                     .set('Authorization', adminToken)
                     .send(update);
