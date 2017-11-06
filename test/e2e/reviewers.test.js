@@ -1,6 +1,7 @@
 const request = require('./request');
 const mongoose = require('mongoose');
 const assert = require('chai').assert;
+const tokenService = require('../../lib/utils/token-service');
 
 describe('Reviewer API', () => {
     let studio = {
@@ -13,18 +14,41 @@ describe('Reviewer API', () => {
     
     let reviewer = {
         name: 'Roger Ebert',
-        company: 'Siskel & Ebert'
+        company: 'Siskel & Ebert',
+        email: 'xxx@x.com',
+        password: 'xyz',
+        roles: ['Admin']
+    };
+
+    let reviewer1 = {
+        name: 'whatever',
+        company: 'whatever co',
+        email: 'whatever@com',
+        password: 'xyz',
+        role: ['Admin']
     };
 
     beforeEach(() => mongoose.connection.dropDatabase());
 
+    let token = null;
     beforeEach(() => {
         
-        return request.post('/api/filmIndustry/reviewers')
+        return request.post('/api/auth/signup')
             .send(reviewer)
             .then(({ body }) => {
-                reviewer._id = body._id;
-                return body;
+                token = body.token;
+                return tokenService.verify(token);
+            })
+            .then((res) => {
+                reviewer._id = res.id;
+            })
+            .then(() => {
+                return request.post('/api/auth/signup')
+                    .send(reviewer1)
+                    .then(({ body }) => {
+                        token = body.token;
+                        return tokenService.verify(token);
+                    });
             })
             .then(()=>{
                 return request.post('/api/filmIndustry/studios')
@@ -50,6 +74,7 @@ describe('Reviewer API', () => {
                     cast: [{actor: actor._id}]
                 };
                 return request.post('/api/filmIndustry/films')
+                    .set('Authorization', token)
                     .send(testMovie)
                     .then(({ body }) => {
                         testMovie._id = body._id;
@@ -64,6 +89,7 @@ describe('Reviewer API', () => {
                     film: testMovie._id
                 };
                 return request.post('/api/filmIndustry/reviews/') 
+                    .set('Authorization', token)
                     .send(review)
                     .then(({ body }) => {
                         review._id = body._id;
@@ -74,72 +100,39 @@ describe('Reviewer API', () => {
 
     });
 
-    
-    it('saves a reviewer', () => {
-        let reviewer1 = {
-            name: 'Roger Ebert',
-            company: 'Siskel & Ebert'
-        };
-        return request.post('/api/filmIndustry/reviewers')
-            .send(reviewer1)
-            .then(({ body }) => {
-                assert.equal(body.name, reviewer.name);
-            });
-    });
+      
     
     it('gets a reviewer with an id', () => {
         return request.get(`/api/filmIndustry/reviewers/${reviewer._id}`)
             .then(({ body }) => {
                 assert.equal(body.name, reviewer.name);
+                assert.equal(body.reviews[0].rating, 4);
+                assert.equal(body.reviews[0].review_text, 'Simply Amazing');
             });
     });
 
+
     it('get all reviewers',() => {
 
-        let reviewer1 = {
-            name: 'Erdem Ebert',
-            company: 'Siskel & Ebert'
-        };
-
-        let reviewer2 = {
-            name:'Gene Siskel',
-            company:'Siskel & Ebert'};
-
-        let reviewerCollection = [reviewer1, reviewer2].map(item => {
-            return request.post('/api/filmIndustry/reviewers')
-                .send(item)
-                .then(res => res.body);
-        });
-
-        let saved = null;
-        return Promise.all(reviewerCollection)
-            .then(_saved => {
-                saved =_saved;
-                return request.get('/api/filmIndustry/reviewers');
-            })
-            .then(res => {
-                assert.deepEqual(res.body[1].name, saved[0].name);
-            });
+        return request.get('/api/filmIndustry/reviewers')
+            .then(({ body })=> {
+                assert.equal(body.length, 2);
+                assert.deepEqual(body[1].name, 'whatever');
+            }); 
     });
 
     it('updates reviewer with an id', () => {
         const update = { 
             name:'Someone Cool',
-            company:'Siskel & Ebert'
+            company:'Siskel & Ebert',
+            roles: ['Admin']
         };
 
-        let reviewerToUpdate = {
-            name: 'Roger Ebert',
-            company: 'Siskel & Ebert'
-        };
-
-        return request.post('/api/filmIndustry/reviewers')
-            .send(reviewerToUpdate)
-            .then(res => {
-                return request.put(`/api/filmIndustry/reviewers/${res.body._id}`).send(update);
-            })
-            .then(res => {
-                assert.equal(res.body.name, update.name);
+        return request.put(`/api/filmIndustry/reviewers/${reviewer._id}`)
+            .set('Authorization', token)
+            .send(update)
+            .then(({ body }) => {
+                assert.equal(body.name, update.name);
             });
 
     });

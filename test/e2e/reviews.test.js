@@ -1,6 +1,7 @@
 const request = require('./request');
 const mongoose = require('mongoose');
 const assert = require('chai').assert;
+const tokenService = require('../../lib/utils/token-service');
 
 describe('Reviews API', () => {
 
@@ -14,19 +15,27 @@ describe('Reviews API', () => {
     
     let reviewer = {
         name: 'Roger Ebert',
-        company: 'Siskel & Ebert'
+        company: 'Siskel & Ebert',
+        email: 'bbb@com',
+        password: 'vcr',
+        roles: ['Admin']
     };
    
     
     beforeEach(() => mongoose.connection.dropDatabase());
     let reviewArray = null;
+    let token = null;
 
     beforeEach(() => {
-        return request.post('/api/filmIndustry/reviewers')
+        
+        return request.post('/api/auth/signup')
             .send(reviewer)
             .then(({ body }) => {
-                reviewer._id = body._id;
-                return body;
+                token = body.token;
+                return tokenService.verify(token);
+            })
+            .then((res) => {
+                reviewer._id = res.id;
             })
             .then(()=>{
                 return request.post('/api/filmIndustry/studios')
@@ -77,7 +86,8 @@ describe('Reviews API', () => {
     });
 
     it('saves a review', () => {
-        return request.post('/api/filmIndustry/reviews/') 
+        return request.post('/api/filmIndustry/reviews/')
+            .set('Authorization', token)
             .send(reviewArray[0])
             .then(({ body }) => {
                 assert.equal(body.rating, reviewArray[0].rating);
@@ -87,6 +97,7 @@ describe('Reviews API', () => {
     it('gets review with id', () => {
         let savedReview = null;
         return request.post('/api/filmIndustry/reviews')
+            .set('Authorization', token)
             .send(reviewArray[0])
             .then(res => {
                 savedReview = res.body;
@@ -101,6 +112,7 @@ describe('Reviews API', () => {
 
         let reviewPromises = reviewArray.map(item => {
             return request.post('/api/filmIndustry/reviews')
+                .set('Authorization', token)
                 .send(item)
                 .then(res => res.body);
         });
@@ -115,6 +127,39 @@ describe('Reviews API', () => {
                 assert.deepEqual(res.body[1].rating, saved[1].rating);
                 assert.deepEqual(res.body[0].review_text, saved[0].review_text);
                 assert.equal(res.body[0].title, saved[0].title);
+            });
+    });
+
+    it('updates review with an id', () => {
+        const update = {rating: 1};
+
+        let savedReview = null;
+        return request.post('/api/filmIndustry/reviews')
+            .set('Authorization', token)
+            .send(reviewArray[0])
+            .then(res => {
+                savedReview = res.body;
+                return request.put(`/api/filmIndustry/reviews/${savedReview._id}`)
+                    .set('Authorization', token)
+                    .send(update);
+            })
+            .then(res => {
+                assert.equal(res.body.rating, update.rating);
+            });
+    });
+
+    it('deletes with id', () => {
+        let savedReview = null;
+        return request.post('/api/filmIndustry/reviews')
+            .set('Authorization', token)
+            .send(reviewArray[0])
+            .then(res => {
+                savedReview = res.body;
+                return request.delete(`/api/filmIndustry/reviews/${savedReview._id}`)
+                    .set('Authorization', token);
+            })
+            .then(res => {
+                assert.deepEqual(res.body, { removed: true });
             });
     });
 

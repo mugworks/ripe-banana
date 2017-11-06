@@ -1,6 +1,7 @@
 const request = require('./request');
 const mongoose = require('mongoose');
 const assert = require('chai').assert;
+const tokenService = require('../../lib/utils/token-service');
 
 describe('Film API', () => {
 
@@ -14,11 +15,16 @@ describe('Film API', () => {
 
     let reviewer1 = {
         name: 'Travis',
-        company: 'theweb'
+        company: 'theweb',
+        email: 'someone',
+        password: '456',
+        roles: ['Admin']
     };
     
     let movie1 = null;
     let movie2 = null;
+
+    let token = null;
 
     beforeEach(() => {
 
@@ -56,14 +62,25 @@ describe('Film API', () => {
                             cast: [{part: 'prisoner', actor: actor._id}]
                         };
                     })
-                    .then(() => {
-                        return request.post('/api/filmIndustry/reviewers')
-                            .send(reviewer1)
-                            .then(savedReviewer => {
-                                reviewer1._id = savedReviewer.body._id;
+                    // .then(() => {
+                    //     return request.post('/api/filmIndustry/reviewers')
+                    //         .send(reviewer1)
+                    //         .then(savedReviewer => {
+                    //             reviewer1._id = savedReviewer.body._id;
                                    
-                            });
+                    //         });
 
+                    // });
+                    .then(() =>{
+                        return request.post('/api/auth/signup')
+                            .send(reviewer1)
+                            .then(({ body }) => {
+                                token = body.token;
+                                return tokenService.verify(token);
+                            })
+                            .then((res) => {
+                                reviewer1._id = res.id;
+                            });
                     });
             });
     });
@@ -115,6 +132,7 @@ describe('Film API', () => {
                     film: film._id,
                 };
                 return request.post('/api/filmIndustry/reviews')
+                    .set('Authorization', token)
                     .send(review)
                     .then(savedReview => {
                         review = savedReview;
@@ -138,10 +156,12 @@ describe('Film API', () => {
     it('deletes with id', () => {
         let savedFilm =null;
         return request.post('/api/filmIndustry/films')
+            .set('Authorization', token)
             .send(movie1)
             .then(res => {
                 savedFilm = res.body;
-                return request.delete(`/api/filmIndustry/films/${savedFilm._id}`);
+                return request.delete(`/api/filmIndustry/films/${savedFilm._id}`)
+                    .set('Authorization', token);
             })
             .then(res => {
                 assert.deepEqual(res.body, { removed: true });
@@ -150,6 +170,7 @@ describe('Film API', () => {
 
     it('return false delete with bad id', () => {
         return request.delete('/api/filmIndustry/films/59dfeaeb083bf9beecc97ce8')
+            .set('Authorization', token)
             .then(res => {
                 assert.deepEqual(res.body, {removed: false});
             });
@@ -160,44 +181,13 @@ describe('Film API', () => {
         return request.post('/api/filmIndustry/films')
             .send(movie1)
             .then(res => {
-                return request.put(`/api/filmIndustry/films/${res.body._id}`).send(update);
+                return request.put(`/api/filmIndustry/films/${res.body._id}`)
+                    .set('Authorization', token)
+                    .send(update);
             })
             .then(res => {
                 assert.equal(res.body.title, update.title);
             });
-    });
-
-    it('updates a film', () => {
-        return request.post('/api/filmIndustry/films')
-            .send(movie1)
-            .then(res => {
-                let savedMovie = res.body;    
-                savedMovie.title = 'Wonder Bread';
-                return request.put(`/api/filmIndustry/films/${savedMovie._id}`)
-                    .send(savedMovie);
-            })
-            .then(res => {
-                assert.equal(res.body.title, 'Wonder Bread');
-            });
-    }); 
-    
-    it('removes by id', () => {
-        let film = null;
-        return request.post('/api/films')
-            .send(film)
-            .then(res => {
-                film = res.body;
-                return request.delete(`/api/films/${film._id}`);
-            })
-            .then(res => {
-                assert.deepEqual(res.body, { removed: true });
-                return request.get(`/api/film/${film._id}`);
-            })
-            .then(
-                () => { throw new Error('Unexpected successful response'); },
-                err => {
-                    assert.equal(err.status, 404);
-                });
     });
 
 });
