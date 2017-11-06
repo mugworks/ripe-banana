@@ -8,7 +8,8 @@ describe('Reviewer model', () => {
         name: 'Roger Ebert',
         company: 'Siskel & Ebert',
         email: 'testUser1',
-        password: 'abc'
+        password: 'abc',
+        role: 'Admin'
     });
 
     it('generates hash from password', ()=> {

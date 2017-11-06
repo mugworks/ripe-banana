@@ -14,7 +14,8 @@ describe('Auth Api', () => {
                 name: 'siskel',
                 company: 'Ny Times',
                 email: 'testUser1',
-                password: 'abc'
+                password: 'abc',
+                role : 'Admin'
             })
             .then(({ body }) => token = body.token);
     });
@@ -30,7 +31,8 @@ describe('Auth Api', () => {
                 name: 'siskel',
                 company: 'Ny Times',
                 email: 'testUser1',
-                password: 'def'})
+                password: 'def'
+            })
             .then(
                 () => { throw new Error('unexpected successful response'); },
                 err => {
@@ -46,7 +48,8 @@ describe('Auth Api', () => {
                 name: 'different siskel',
                 company: 'Ny Times',
                 email: 'testUser2',
-                password: ''
+                password: '',
+                roles: ['Admin']
             })
             .then(
                 () => { throw new Error('unexpected successful response'); },

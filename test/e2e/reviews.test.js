@@ -17,7 +17,8 @@ describe('Reviews API', () => {
         name: 'Roger Ebert',
         company: 'Siskel & Ebert',
         email: 'bbb@com',
-        password: 'vcr'
+        password: 'vcr',
+        roles: ['Admin']
     };
    
     

@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const assert = require('chai').assert;
 const tokenService = require('../../lib/utils/token-service');
 
-describe.only('Film API', () => {
+describe('Film API', () => {
 
     let studio = {
         name: 'MGM'
@@ -17,7 +17,8 @@ describe.only('Film API', () => {
         name: 'Travis',
         company: 'theweb',
         email: 'someone',
-        password: '456'
+        password: '456',
+        roles: ['Admin']
     };
     
     let movie1 = null;
@@ -116,7 +117,7 @@ describe.only('Film API', () => {
 
     }),
 
-    it.skip('get a film by id', () => {
+    it('get a film by id', () => {
         let film = null;
         return request.post('/api/filmIndustry/films')
             .send(movie1)
@@ -131,6 +132,7 @@ describe.only('Film API', () => {
                     film: film._id,
                 };
                 return request.post('/api/filmIndustry/reviews')
+                    .set('Authorization', token)
                     .send(review)
                     .then(savedReview => {
                         review = savedReview;

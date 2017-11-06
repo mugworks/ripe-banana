@@ -16,14 +16,16 @@ describe('Reviewer API', () => {
         name: 'Roger Ebert',
         company: 'Siskel & Ebert',
         email: 'xxx@x.com',
-        password: 'xyz'
+        password: 'xyz',
+        roles: ['Admin']
     };
 
     let reviewer1 = {
         name: 'whatever',
         company: 'whatever co',
         email: 'whatever@com',
-        password: 'xyz'
+        password: 'xyz',
+        role: ['Admin']
     };
 
     beforeEach(() => mongoose.connection.dropDatabase());
@@ -122,7 +124,8 @@ describe('Reviewer API', () => {
     it('updates reviewer with an id', () => {
         const update = { 
             name:'Someone Cool',
-            company:'Siskel & Ebert'
+            company:'Siskel & Ebert',
+            roles: ['Admin']
         };
 
         return request.put(`/api/filmIndustry/reviewers/${reviewer._id}`)
